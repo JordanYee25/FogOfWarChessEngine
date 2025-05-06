@@ -1,5 +1,5 @@
 # FogOfWarChessEngine
-
+Welcome to Capital Chess! Where Capital letters are white pieces and lowercase letters are black pieces
 
 ## Dependencies
 ```
@@ -10,11 +10,10 @@ pip install chess
 ##TODO
 
 
-
+# Notes on Chess API
 
 # Fog of War Chess/Dark Chess Overview
-It is important to note that (unless future jordan changes his mind), unlike chess.com, pawns can see squares that they attack even if there is not a piece on them, this aligns more with the other pieces on the board, and makes it easier to code :D
-
+It is important to note that like chess.com, the visibility is determined by legal moves and not attacking moves. The difference here is probably only noticeable for pawns which capture/attack diagonally but normall move straight
 
 # 5.1.2 State Space Description
 
