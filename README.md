@@ -6,6 +6,15 @@
 pip install chess
 ```
 
+# Notation Hint
+##TODO
+
+
+
+
+# Fog of War Chess/Dark Chess Overview
+It is important to note that (unless future jordan changes his mind), unlike chess.com, pawns can see squares that they attack even if there is not a piece on them, this aligns more with the other pieces on the board, and makes it easier to code :D
+
 
 # 5.1.2 State Space Description
 
@@ -27,3 +36,7 @@ The transitions function from one state to another is T(s', a, s) which takes th
 The actions are piece movement either by the AI or the opponent both of which have the possibility to create new observations (a piece is moved to reveal a piece or a piece moves into previously existing line of sight of another piece)
 
 The observations use an observation model of the observation made from the most probable board state given an action taken
+
+
+
+
