@@ -2,7 +2,7 @@ import chess
 import sys
 import random
 from board import boardState
-
+from observation import Observation
 
 
 # File for actually runnin the game
@@ -18,45 +18,6 @@ class game:
 
         self.player_board = set() #Keep set of visible squares of the current turn of the player
         
-    #This will work by making almost like a filter (not math filter) of squares that player pieces can currently legally move to, this aligns with chess.com
-    def get_player_squares(self):
-        visible_squares = set()
-        for move in self.board_State.board.legal_moves:
-            if self.board_State.board.piece_at(move.from_square).color == self.player:      #Check if player color
-                visible_squares.add(move.from_square)               #ADD BOTH SQUARE PIECE IS ON AND THE SQUARES IT CAN MOVE TO
-                visible_squares.add(move.to_square)        
-        return visible_squares
-
-    #This assumes the board is only printed for player moves, AI moves happen in the background
-    #Also, pychess doesnt support setting up a position (at least in an easier way than just manually making a board)
-    ######################################
-    #TO FIX THIS ASSUMES PLAYER IS WHITE
-    ######################################
-    #This creates and prints the board
-    def print_player_board(self):
-        self.player_board = self.get_player_squares()
-
-        #Assuming an 8x8 grid, we check each square returned in the player board (board that we know the player can see) with the actual board. 
-        #If there is a square that the player should be seeing, we check if there is a piece on it or alternatively, if the square is being controlled/attacked by one of the pieces 
-        #If it is a piece, we put the piece marking, see README. If an empty square, we put a ".", if non of the above (fog) then put a "?"
-
-        #This takes the cake for worst code ive ever written
-        for row in reversed(range(8)):
-            for col in range(8):
-                square = chess.square(col, row)
-                if square in self.player_board:
-                    piece = self.board_State.board.piece_type_at(square)
-                    if piece:
-                        print(chess.piece_symbol(piece).capitalize(), end='')
-                    else:
-                        print(".", end='')
-                elif self.board_State.board.piece_at(square) and self.board_State.board.piece_at(square).color == self.player:
-                    print(chess.piece_symbol(piece).capitalize(), end='')
-                else:
-                    print("?", end='')
-                print(" ", end='')
-            print()
-
     def get_player_move(self):
         while True:
             player_move = input("Please enter move\n").strip()
@@ -89,7 +50,8 @@ class game:
 
             #if player is white they go first
             if self.player == self.board_State.board.turn:
-                self.print_player_board()
+                observation = Observation(self.board_State.board, self.player)
+                observation.print_fog_board()
                 move = self.get_player_move()
             else:
                 move = self.get_ai_move()
@@ -100,12 +62,9 @@ class game:
             else:
                 print(f"Black played {move}!")
             
-
-
             self.board_State.board.push(move)
         return self.board_State.board.turn  #who ever this returns is the winner, because the loop beraks when the opponent cannot make any legal moves
         
-
 
 # Command for starting game as white:    python game.py w
 # Command for starting game as black:    python game.py b

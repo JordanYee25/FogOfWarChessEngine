@@ -37,5 +37,5 @@ The actions are piece movement either by the AI or the opponent both of which ha
 The observations use an observation model of the observation made from the most probable board state given an action taken
 
 
-
-
+# 5.1.3 Sate Space Implementation
+    
