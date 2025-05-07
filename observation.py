@@ -90,3 +90,6 @@ class Observation:
             return self.board.piece_at(square).color
         else:
             return None
+        
+    def getBoard(self):
+        return self.visible_board
