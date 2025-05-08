@@ -1,6 +1,5 @@
 # This is the interesting stuff, holds the many many possible chess board states. Observations for AI only 
 
-
 #################
 #REFERENCES
 #################

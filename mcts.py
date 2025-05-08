@@ -66,10 +66,10 @@ class MCTS:
     def mcts(self, board: chess.Board):
         startTime = time.time()
         runTime = 1.0 #how long to let mcts run
-
+        rootBoard = copy.deepcopy(board)
+        rootNode = MCTSNode(rootBoard, None, None)
         while time.time() - startTime < runTime:
-            rootBoard = copy.deepcopy(board)
-            rootNode = MCTSNode(rootBoard, None, None)
+
             node = rootNode
             
             while not node.is_leaf():

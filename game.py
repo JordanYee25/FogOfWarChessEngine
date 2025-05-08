@@ -51,9 +51,16 @@ class game:
             if select_board.is_valid():
                 break
 
-        move = self.mcts.mcts(select_board)
-        if move is None:
-            print("ERROR NONE MOVE")
+        # move = self.mcts.mcts(select_board)
+        # if move is None:
+        #     print("ERROR NONE MOVE")
+        #print(select_board)
+        result = self.fish_engine.play(select_board, chess.engine.Limit(time=0.1))
+        move = result.move
+
+        if move not in self.board_State.board.legal_moves:
+          #  print("Stockfish chose ILLEGAL move")
+            return random.choice(list(self.board_State.board.legal_moves))
         return move
 
     #Run the game
@@ -80,12 +87,12 @@ class game:
                 move = self.get_ai_move()
 
             #UNCOMMENT TO SEE player moves
-            if self.board_State.board.turn:
-                print(f"White played {move}!")
-            else:
-                print(f"Black played {move}!")
+            # if self.board_State.board.turn:
+            #     print(f"White played {move}!")
+            # else:
+            #     print(f"Black played {move}!")
             
-            self.board_State.board.push(move)
+            # self.board_State.board.push(move)
         
         self.fish_engine.quit()
         if self.board_State.board.turn == chess.BLACK:
