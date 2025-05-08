@@ -14,10 +14,12 @@ import chess, random
 
 
 class beliefState:
-    def __init__(self, player_color: bool, num_particles=100):
+
+    #For color put in the color that the AI is when calling
+    def __init__(self, color: bool, num_particles=100):
         self.num_particles: int = num_particles #Default 100
         self.particles: list[chess.Board] = [] #Particles for the almighty particle filter 
-        self.player_color = player_color
+        self.color = color
 
     #Generates initial particles given num particles
     ###################
@@ -34,6 +36,7 @@ class beliefState:
                 new_particle = self.guesstimate(observation)
             else:
                 new_particle = chess.Board()
+                new_particle.turn = self.color
 
             self.particles.append(new_particle)
 
@@ -66,6 +69,7 @@ class beliefState:
     #IT IS VERY IMPORTANT THAT THE ACTUAL BOARD IS NOT PASSED IN. THAT WOULD BE CHEATING!!!
     def guesstimate(self, observation : Observation):
         board = chess.Board()
+        board.turn = self.color
         board.clear_board() 
         
         #For when placing pieces, keep track of what pieces have been placed, also if there is already an ENEMY piece observed, subtract
@@ -83,7 +87,7 @@ class beliefState:
             board.set_piece_at(square, piece)
     
             #Note if enemy piece was added
-            if piece.color is not self.player_color:
+            if piece.color is not self.color:
                 unplaced_pieces[piece.piece_type] -= 1
         
         #Fun part!
@@ -99,7 +103,7 @@ class beliefState:
 
                     if remaining_pieces:
                         piece = random.choice(remaining_pieces)
-                        color = not self.player_color  
+                        color = not self.color  
 
                         board.set_piece_at(square, chess.Piece(piece, color))
                         unplaced_pieces[piece] -= 1
@@ -119,7 +123,7 @@ class beliefState:
             else:
                 king_Square = random.choice(remainingSquares4TheKing)
             
-            board.set_piece_at(king_Square, chess.Piece(chess.KING, not self.player_color))
+            board.set_piece_at(king_Square, chess.Piece(chess.KING, not self.color))
             unplaced_pieces[chess.KING] -= 1
             
         return board

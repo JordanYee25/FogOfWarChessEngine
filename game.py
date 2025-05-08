@@ -1,9 +1,10 @@
 import chess
 import sys
 import random
+import chess.engine #Stock fish for evaluating AI moves/partial board. Only for choosing next move, nothing more
 from board import boardState
 from observation import Observation
-
+from beliefState import beliefState
 
 # File for actually runnin the game
 # Just thought this was the cleaner way to do it
@@ -17,6 +18,12 @@ class game:
         self.player = player_color
 
         self.player_board = set() #Keep set of visible squares of the current turn of the player
+
+        self.beliefState = beliefState(not self.player) #Belief state is only for AI which is the opposite of player color
+        
+        self.fish_engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+
+        
         
     def get_player_move(self):
         while True:
@@ -37,10 +44,31 @@ class game:
         #Make observation
         #make move
         #update observation/belief state
-        return random.choice(list(self.board_State.board.legal_moves))
+        select_board = None
+        for board in range(100): #Because 100 particles
+            select_board = random.choice(self.beliefState.particles)
+            if select_board.is_valid():
+                break
+
+        print(select_board)
+        result = self.fish_engine.play(select_board, chess.engine.Limit(time=0.1))
+        move = result.move
+
+        ##OKAY so there is this error which i am not entirely sure how to fix at the moment
+        #stock fish, when presented with a particle board, might believe that there is a piece where there actually isnt one. 
+        #This may result in it trying to capture that piece and the chess api will for some reason allow that, or crash
+        #This mostly happens with pawns, I believe if I swap this out for MCTS and actually simualte it should work better
+        #The simple soluton would be to ask the fish for another move, but i dont think i can do that easily
+        if move not in self.board_State.board.legal_moves:
+            print("Stockfish chose ILLEGAL move")
+            return random.choice(list(self.board_State.board.legal_moves))
+        return move
 
     #Run the game
     def start(self):
+        observation = Observation(self.board_State.board, not self.player)
+        self.beliefState.generate_particles(observation, True) #Yes it is move 0 so the particles should all be the same initial board
+
         while not self.board_State.isGameOver():
             
             if self.board_State.board.turn:
@@ -54,6 +82,9 @@ class game:
                 observation.print_fog_board()
                 move = self.get_player_move()
             else:
+                observation = Observation(self.board_State.board, not self.player)
+                self.beliefState.update(observation)
+                
                 move = self.get_ai_move()
 
 
@@ -63,6 +94,9 @@ class game:
                 print(f"Black played {move}!")
             
             self.board_State.board.push(move)
+        
+        self.fish_engine.quit()
+
         return self.board_State.board.turn  #who ever this returns is the winner, because the loop beraks when the opponent cannot make any legal moves
         
 
