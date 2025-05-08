@@ -11,6 +11,14 @@ https://stockfishchess.org/download/
 
 See notes below
 ```
+# To play
+play as white
+python game.py w
+
+play as black 
+python game.py b
+
+
 
 # Notation Hint
 To enter moves, enter in standard chess notation. Please reference python chess
@@ -84,7 +92,7 @@ I first had to create the game space, I used python chess for their board operat
 
 Observation.py gets an observation from the board using friendly pieces and fog of war chess rules to create a board for the user and the AI to use. It gives two main important pieces of info which are the visible pieces which are pieces that can be seen directly. And visible_board which I should have just named visible squares because it only holds information on seen squares and not the rest of the board, it is not a chess.Board object it is just a list
 
-BeliefState.py is my particle filter attempt. It takes a board from the observation.py (A chess board with fog of war enabled) and created many variants of what the opponent player could have. It is not very smart, it just randomly places pieces down with the rule that it will not place down more pieces than possible, and it will always place down a king before returning. 
+BeliefState.py is my particle filter attempt. It takes a board from the observation.py (A chess board with fog of war enabled) and created many variants of what the opponent player could have. It is not very smart, it just randomly places pieces down with the rule that it will not place down more pieces than possible, and it will always place down a king before returning. Stock fish is ran on a given belief state to find the best move in that belief state, this means that it may think your piece is somewhere and it will react accordingly.
 
 
 MCTS.py is my attempt at mcts, I unfortuneatly ran out of time to fully implement it, the code for mcts is widely online, but not for chess, and so I had to adapt lots of code from online references to get it to not crash. I hope I sufficiently noted them, but just in case:
