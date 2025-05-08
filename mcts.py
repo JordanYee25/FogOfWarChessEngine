@@ -18,14 +18,15 @@ from observation import Observation
 from beliefState import beliefState
 
 class MCTSNode:
-    def __init__(self, board:chess.board, move, parent):
+    def __init__(self, board:chess.Board, move, parent):
         self.board: chess.Board = board
         self.move = move
         self.parent = parent
         self.children: list[MCTSNode] = []
 
-        self.wins = 0
+        self.score = 0
         self.visits = 0
+
 
     def  expand(self):
         if not self.board.is_game_over():
@@ -37,8 +38,7 @@ class MCTSNode:
 
     def update(self, r):
         self.visits += 1
-        if r == True:
-            self.wins += 1
+        self.score += r
     
     def is_leaf(self):
         return len(self.children) == 0
@@ -58,9 +58,12 @@ class MCTSNode:
         return bestChild
 
 
+class MCTS:
+    def __init__(self):
+        self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
 
 
-    def MCTS(self, board: chess.Board):
+    def mcts(self, board: chess.Board):
         startTime = time.time()
         runTime = 1.0 #how long to let mcts run
 
@@ -73,11 +76,29 @@ class MCTSNode:
                 node = node.best_child()
                 rootBoard.push(node.move)
 
-            node.expand(rootBoard)
+            node.expand()
 
             node = node.best_child()
 
             #Simulate till end of game
-            while not rootBoard.is_game_over():
-                rootBoard.push(random.choice(list(rootBoard.legal_moves)))
-            result = self.evaluate(rootBoard)
+            #Instead of simulating through random moves (which will likely be innacurate due to the nature of chess)
+            #Use stockfish to get an evaluation of the score, which initself kind of simulates anyways
+            #while not rootBoard.is_game_over():
+            #    rootBoard.push(random.choice(list(rootBoard.legal_moves)))
+            #Heavily referenced chess.engine docs
+            info = self.engine.analyse(rootBoard, chess.engine.Limit(depth=20))
+            score = info["score"]
+            eval = score.white().score(mate_score=100000)   #Extracts score in numeric value
+            if rootBoard.turn == chess.WHITE:
+                result = float(eval)
+            else:
+                result = -float(eval)
+
+
+            while node.has_parent():
+                node.update(result)
+                node = node.parent
+
+        return rootNode.best_child().move
+
+            

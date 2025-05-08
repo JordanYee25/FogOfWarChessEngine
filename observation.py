@@ -45,7 +45,7 @@ class Observation:
                 self.visible_pieces[square] = chess.Piece(board.piece_type_at(square), player)
         return visible_squares
     
-    #optimize later if u want to
+    #optimize later todo
     #Assuming an 8x8 grid, we check each square returned in the player board (board that we know the player can see) with the actual board. 
     #If there is a square that the player should be seeing, we check if there is a piece on it or alternatively, if the square is being controlled/attacked by one of the pieces 
     #If it is a piece, we put the piece marking, see README. If an empty square, we put a ".", if non of the above (fog) then put a "?"

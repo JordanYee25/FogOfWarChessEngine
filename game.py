@@ -1,10 +1,11 @@
 import chess
 import sys
 import random
-import chess.engine #Stock fish for evaluating AI moves/partial board. Only for choosing next move, nothing more
+import chess.engine #Stock fish for evaluating AI moves/partial board. Only for choosing next move, nothing more. Stockfish is just the engine being used, actual function calls are stil in the python chess api
 from board import boardState
 from observation import Observation
 from beliefState import beliefState
+from mcts import MCTS
 
 # File for actually runnin the game
 # Just thought this was the cleaner way to do it
@@ -22,7 +23,7 @@ class game:
         self.beliefState = beliefState(not self.player) #Belief state is only for AI which is the opposite of player color
         
         self.fish_engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
-
+        self.mcts = MCTS()
         
         
     def get_player_move(self):
@@ -50,18 +51,9 @@ class game:
             if select_board.is_valid():
                 break
 
-        print(select_board)
-        result = self.fish_engine.play(select_board, chess.engine.Limit(time=0.1))
-        move = result.move
-
-        ##OKAY so there is this error which i am not entirely sure how to fix at the moment
-        #stock fish, when presented with a particle board, might believe that there is a piece where there actually isnt one. 
-        #This may result in it trying to capture that piece and the chess api will for some reason allow that, or crash
-        #This mostly happens with pawns, I believe if I swap this out for MCTS and actually simualte it should work better
-        #The simple soluton would be to ask the fish for another move, but i dont think i can do that easily
-        if move not in self.board_State.board.legal_moves:
-            print("Stockfish chose ILLEGAL move")
-            return random.choice(list(self.board_State.board.legal_moves))
+        move = self.mcts.mcts(select_board)
+        if move is None:
+            print("ERROR NONE MOVE")
         return move
 
     #Run the game
@@ -87,7 +79,7 @@ class game:
                 
                 move = self.get_ai_move()
 
-
+            #UNCOMMENT TO SEE player moves
             if self.board_State.board.turn:
                 print(f"White played {move}!")
             else:
@@ -96,8 +88,10 @@ class game:
             self.board_State.board.push(move)
         
         self.fish_engine.quit()
-
-        return self.board_State.board.turn  #who ever this returns is the winner, because the loop beraks when the opponent cannot make any legal moves
+        if self.board_State.board.turn == chess.BLACK:
+            return "white"
+        else:
+            return "black"
         
 
 # Command for starting game as white:    python game.py w
@@ -112,7 +106,7 @@ if __name__ == "__main__":
     elif sys.argv[1] == 'b':
         player_color = chess.BLACK
     else:
-        print("Invalidplay er option chosen, likely mising parameter w or b in cmd argument, see game.py")
+        print("Invalid player option chosen, likely mising parameter w or b in cmd argument, see game.py")
         exit()
 
     game = game(player_color)
