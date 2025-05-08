@@ -92,7 +92,7 @@ class game:
             # else:
             #     print(f"Black played {move}!")
             
-            # self.board_State.board.push(move)
+            self.board_State.board.push(move)
         
         self.fish_engine.quit()
         if self.board_State.board.turn == chess.BLACK:
