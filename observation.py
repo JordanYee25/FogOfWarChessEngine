@@ -21,7 +21,7 @@ class Observation:
         self.player = player
         self.visible_pieces = {} #kv pair where the key is square, The value is a chess.Piece(piece,color)
         self.visible_board = self.get_fog_board(board, player)  #Should really be named visible squares because it doesnt care abt the rest of the sqaures
-    #Okay 
+
     def get_fog_board(self, board: chess.Board, player: bool):
         if board is None or player is None:
             print("Exception, board or player not supplied for get_fog_board")

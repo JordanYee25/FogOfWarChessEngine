@@ -12,11 +12,12 @@ from mcts import MCTS
 
 # This will control stuff like move input, checking for win condition. The ping pong style of play between players and such
 class game:
-    def __init__(self, player_color):
+    def __init__(self, player_color, debug=False):
         self.full_board = chess.Board()
         self.board_State = boardState(self.full_board)  #Actual Board, SHOULD NOT BE SHOWN DIRECTLY TO USER OR AI
 
         self.player = player_color
+        self.debug = debug
 
         self.player_board = set() #Keep set of visible squares of the current turn of the player
 
@@ -70,6 +71,7 @@ class game:
 
         while not self.board_State.isGameOver():
             
+
             if self.board_State.board.turn:
                 print("\nWhite to move!")
             else:
@@ -86,13 +88,18 @@ class game:
                 
                 move = self.get_ai_move()
 
-            #UNCOMMENT TO SEE player moves
-            # if self.board_State.board.turn:
-            #     print(f"White played {move}!")
-            # else:
-            #     print(f"Black played {move}!")
-            
+
             self.board_State.board.push(move)
+            
+            if self.debug:
+
+                if self.board_State.board.turn:
+                    print(f"White played {move}!")
+                else:
+                    print(f"Black played {move}!")
+                
+                print(self.board_State.board)
+
         
         self.fish_engine.quit()
         if self.board_State.board.turn == chess.BLACK:
@@ -105,7 +112,7 @@ class game:
 # Command for starting game as black:    python game.py b
 # User must select either w/b
 if __name__ == "__main__":
-    
+    debug = False
     player_color = chess.WHITE  #chess.WHITE equals True in the API
     
     if sys.argv[1] == 'w':
@@ -115,11 +122,10 @@ if __name__ == "__main__":
     else:
         print("Invalid player option chosen, likely mising parameter w or b in cmd argument, see game.py")
         exit()
+    if sys.argv[2] == "--debug":
+        debug = True
 
-    game = game(player_color)
+    game = game(player_color, debug)
     winner = game.start()
 
-    ##################################################
-    #MUST FIX, CURRENTLY BACKWARDS DUE TO LOGIC ERROR
-    ##################################################
     print(f"{winner} Won!")
