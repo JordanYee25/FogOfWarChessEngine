@@ -2,6 +2,9 @@ import chess
 import sys
 import random
 import chess.engine #Stock fish for evaluating AI moves/partial board. Only for choosing next move, nothing more. Stockfish is just the engine being used, actual function calls are stil in the python chess api
+import sunfish
+from sunfish import Position, Searcher
+
 from board import boardState
 from observation import Observation
 from beliefState import beliefState
@@ -24,6 +27,8 @@ class game:
         self.beliefState = beliefState(not self.player) #Belief state is only for AI which is the opposite of player color
         
         self.fish_engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        self.sunfish_engine = Searcher()
+        
         self.mcts = MCTS()
         
         
