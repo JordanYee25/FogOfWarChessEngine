@@ -10,6 +10,7 @@ from observation import Observation
 from beliefState import beliefState
 from mcts import MCTS
 
+print("test")
 # File for actually runnin the game
 # Just thought this was the cleaner way to do it
 
@@ -26,7 +27,7 @@ class game:
 
         self.beliefState = beliefState(not self.player) #Belief state is only for AI which is the opposite of player color
         
-        self.fish_engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+       # self.fish_engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
         self.sunfish_engine = Searcher()
         
         self.mcts = MCTS()
@@ -119,7 +120,11 @@ class game:
 if __name__ == "__main__":
     debug = False
     player_color = chess.WHITE  #chess.WHITE equals True in the API
-    
+
+    if len(sys.argv) != 2:
+        print("Invalid player option chosen, likely mising parameter w or b in cmd argument, see game.py")
+        exit()
+
     if sys.argv[1] == 'w':
         player_color = chess.WHITE  
     elif sys.argv[1] == 'b':
@@ -127,7 +132,7 @@ if __name__ == "__main__":
     else:
         print("Invalid player option chosen, likely mising parameter w or b in cmd argument, see game.py")
         exit()
-    if sys.argv[2] == "--debug":
+    if len(sys.argv) > 2 and sys.argv[2] == "--debug":
         debug = True
 
     game = game(player_color, debug)
