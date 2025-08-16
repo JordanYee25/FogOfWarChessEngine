@@ -1,5 +1,3 @@
-# The hard part, imo (in my opinion)
-
 #REFERENCES 
 # Heavily referenced this mcts. The mcts is general form and not specialized for chess
 # Useful general Pseudocode for getting mcts set up https://webdocs.cs.ualberta.ca/~hayward/396/jem/mcts.html
@@ -16,6 +14,9 @@ import random
 from board import boardState
 from observation import Observation
 from beliefState import beliefState
+
+import sunfish
+from sunfish import Position, Searcher
 
 class MCTSNode:
     def __init__(self, board:chess.Board, move, parent):
@@ -60,7 +61,8 @@ class MCTSNode:
 
 class MCTS:
     def __init__(self):
-        self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        #self.engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        self.sunfish_engine = Searcher()
 
 
     def mcts(self, board: chess.Board):
@@ -82,11 +84,11 @@ class MCTS:
 
             #Simulate till end of game
             #Instead of simulating through random moves (which will likely be innacurate due to the nature of chess)
-            #Use stockfish to get an evaluation of the score, which initself kind of simulates anyways
+            #Use sunfish to get an evaluation of the score, which initself kind of simulates anyways
             #while not rootBoard.is_game_over():
             #    rootBoard.push(random.choice(list(rootBoard.legal_moves)))
             #Heavily referenced chess.engine docs
-            info = self.engine.analyse(rootBoard, chess.engine.Limit(depth=20))
+            info = self.sunfish_engine.evaluate(rootBoard)
             score = info["score"]
             eval = score.white().score(mate_score=100000)   #Extracts score in numeric value
             if rootBoard.turn == chess.WHITE:

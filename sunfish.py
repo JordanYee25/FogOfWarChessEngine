@@ -5,6 +5,9 @@ import time, math
 from itertools import count
 from collections import namedtuple, defaultdict
 
+import chess
+
+
 # If we could rely on the env -S argument, we could just use "pypy3 -u"
 # as the shebang to unbuffer stdout. But alas we have to do this instead:
 #from functools import partial
@@ -456,46 +459,62 @@ import sys, uci
 #sys.exit()
 # minifier-hide end
 
-searcher = Searcher()
-while True:
-    args = input().split()
-    if args[0] == "uci":
-        print("id name", version)
-        print("uciok")
+#Eval given position, return best move
+def evaluate(rootBoard :  chess.Board) -> str:
+    searcher = Searcher()
+    info = {}
+   
+    # args = input().split()
+    # if args[0] == "uci":
+    #     print("id name", version)
+    #     print("uciok")
 
-    elif args[0] == "isready":
-        print("readyok")
+    # elif args[0] == "isready":
+    #     print("readyok")
 
-    elif args[0] == "quit":
-        break
+    # elif args[0] == "quit":
+    #     break
 
-    elif args[:2] == ["position", "startpos"]:
-        del hist[1:]
-        for ply, move in enumerate(args[3:]):
-            i, j, prom = parse(move[:2]), parse(move[2:4]), move[4:].upper()
-            if ply % 2 == 1:
+    # elif args[:2] == ["position", "startpos"]:
+    #     del hist[1:]
+    #     for ply, move in enumerate(args[3:]):
+    #         i, j, prom = parse(move[:2]), parse(move[2:4]), move[4:].upper()
+    #         if ply % 2 == 1:
+    #             i, j = 119 - i, 119 - j
+    #         hist.append(hist[-1].move(Move(i, j, prom)))
+
+    
+    #Hard code 10 | 2, game time
+    wtime = 100000
+    btime = 100000
+    winc = 2000
+    binc = 2000
+    if len(hist) % 2 == 0:
+        wtime, winc = btime, binc
+    think = min(wtime / 40 + winc, wtime / 2 - 1)
+
+    start = time.time()
+    move_str = None
+    for depth, gamma, score, move in Searcher().search(hist):
+        # The only way we can be sure to have the real move in tp_move,
+        # is if we have just failed high.
+        if score >= gamma:
+            i, j = move.i, move.j
+            if len(hist) % 2 == 0:
                 i, j = 119 - i, 119 - j
-            hist.append(hist[-1].move(Move(i, j, prom)))
+            move_str = render(i) + render(j) + move.prom.lower()
+            print("info depth", depth, "score cp", score, "pv",move_str )
+            info["Score"] = score
+            info["Move"] = move
+        if move_str and time.time() - start > think * 0.8:
+            info["Score"] = score
+            info["Move"] = move
+            break
+        #Hardcode depth of 6 for speed
+        if depth > 6:
+            info["Score"] = score
+            info["Move"] = move
+            break
 
-    elif args[0] == "go":
-        wtime, btime, winc, binc = [int(a) / 1000 for a in args[2::2]]
-        if len(hist) % 2 == 0:
-            wtime, winc = btime, binc
-        think = min(wtime / 40 + winc, wtime / 2 - 1)
-
-        start = time.time()
-        move_str = None
-        for depth, gamma, score, move in Searcher().search(hist):
-            # The only way we can be sure to have the real move in tp_move,
-            # is if we have just failed high.
-            if score >= gamma:
-                i, j = move.i, move.j
-                if len(hist) % 2 == 0:
-                    i, j = 119 - i, 119 - j
-                move_str = render(i) + render(j) + move.prom.lower()
-                print("info depth", depth, "score cp", score, "pv", move_str)
-            if move_str and time.time() - start > think * 0.8:
-                break
-
-        print("bestmove", move_str or '(none)')
+    
 
